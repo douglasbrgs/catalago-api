@@ -56,7 +56,7 @@ namespace CatalogoApi.Controllers
             return new CreatedAtRouteResult("ObterProduto", new { id = produto.ProdutoId }, produto);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         public ActionResult Put(int id, Produto produto)
         {
             if (id != produto.ProdutoId)
@@ -70,7 +70,7 @@ namespace CatalogoApi.Controllers
             return Ok(produto);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         public ActionResult Delete(int id)
         {
             var produto = _context.Produtos.FirstOrDefault(x => x.ProdutoId == id);
