@@ -39,7 +39,7 @@ namespace CatalogoApi.Controllers
                 return NotFound("Produto nao encontrado");
             }
 
-            return produto;
+            return Ok(produto);
         }
 
         [HttpPost]

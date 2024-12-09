@@ -16,6 +16,12 @@ namespace CatalogoApi.Controllers
             _context = context;
         }
 
+        [HttpGet("produtos")]
+        public IEnumerable<Categoria> GetCategoriasProdutos()
+        {
+            return _context.Categorias.Include(x => x.Produtos).ToList();
+        }
+
         [HttpGet]
         public IEnumerable<Categoria> Get()
         {
@@ -32,7 +38,7 @@ namespace CatalogoApi.Controllers
                 return NotFound("Categoria nao encontrada");
             }
 
-            return categoria;
+            return Ok(categoria);
         }
 
         [HttpPost]
