@@ -19,13 +19,13 @@ namespace CatalogoApi.Controllers
         [HttpGet("produtos")]
         public IEnumerable<Categoria> GetCategoriasProdutos()
         {
-            return _context.Categorias.Include(x => x.Produtos).ToList();
+            return _context.Categorias.Include(x => x.Produtos).AsNoTracking().ToList();
         }
 
         [HttpGet]
         public IEnumerable<Categoria> Get()
         {
-            return _context.Categorias.ToList();
+            return _context.Categorias.AsNoTracking().ToList();
         }
 
         [HttpGet("{id:int}", Name = "ObterCategoria")]
