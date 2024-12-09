@@ -17,11 +17,11 @@ namespace CatalogoApi.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Produto>> Get()
+        public async Task<ActionResult<IEnumerable<Produto>>> GetAsync()
         {
             try
             {
-                return _context.Produtos.AsNoTracking().ToList();
+                return await _context.Produtos.AsNoTracking().ToListAsync();
             }
             catch (Exception)
             {
@@ -30,11 +30,11 @@ namespace CatalogoApi.Controllers
         }
 
         [HttpGet("{id:int:min(1)}", Name = "ObterProduto")]
-        public ActionResult<Produto> Get(int id)
+        public async Task<ActionResult<Produto>> GetAsync(int id)
         {
             try
             {
-                var produto = _context.Produtos.FirstOrDefault(x => x.ProdutoId == id);
+                var produto = await _context.Produtos.AsNoTracking().FirstOrDefaultAsync(x => x.ProdutoId == id);
 
                 if (produto is null)
                 {
