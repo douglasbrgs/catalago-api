@@ -11,10 +11,12 @@ namespace CatalogoApi.Controllers
     public class CategoriasController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly ILogger<CategoriasController> _logger;
 
-        public CategoriasController(AppDbContext context)
+        public CategoriasController(AppDbContext context, ILogger<CategoriasController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         [HttpGet("produtos")]
@@ -22,6 +24,7 @@ namespace CatalogoApi.Controllers
         {
             try
             {
+                _logger.LogInformation("==================== GET api/categorias/produtos ====================");
                 return _context.Categorias.Include(x => x.Produtos).AsNoTracking().ToList();
             }
             catch (Exception)
@@ -36,6 +39,7 @@ namespace CatalogoApi.Controllers
         {
             try
             {
+                _logger.LogInformation("=================== GET api/categorias ==============================");
                 return _context.Categorias.AsNoTracking().ToList();
             }
             catch (Exception)
@@ -50,9 +54,11 @@ namespace CatalogoApi.Controllers
             try
             {
                 var categoria = _context.Categorias.FirstOrDefault(x => x.CategoriaId == id);
+                _logger.LogInformation($"================== GET api/categorias/id {id} ======================");
 
                 if (categoria is null)
                 {
+                    _logger.LogInformation($"============== GET api/categorias/id {id} NOT FOUND ============");
                     return NotFound("Categoria nao encontrada");
                 }
 
