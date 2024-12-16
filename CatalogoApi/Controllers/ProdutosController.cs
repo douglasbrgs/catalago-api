@@ -19,99 +19,64 @@ namespace CatalogoApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Produto>>> GetAsync()
         {
-            try
-            {
-                return await _context.Produtos.AsNoTracking().ToListAsync();
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema ao tratar a sua solicitação.");
-            }
+            return await _context.Produtos.AsNoTracking().ToListAsync();
         }
 
         [HttpGet("{id:int:min(1)}", Name = "ObterProduto")]
         public async Task<ActionResult<Produto>> GetAsync(int id)
         {
-            try
-            {
-                var produto = await _context.Produtos.AsNoTracking().FirstOrDefaultAsync(x => x.ProdutoId == id);
+            var produto = await _context.Produtos.AsNoTracking().FirstOrDefaultAsync(x => x.ProdutoId == id);
 
-                if (produto is null)
-                {
-                    return NotFound("Produto nao encontrado");
-                }
-
-                return Ok(produto);
-            }
-            catch (Exception)
+            if (produto is null)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema ao tratar a sua solicitação.");
+                return NotFound("Produto nao encontrado");
             }
+
+            return Ok(produto);
         }
 
         [HttpPost]
         public ActionResult Post(Produto produto)
         {
-            try
+            if (produto is null)
             {
-                if (produto is null)
-                {
-                    return BadRequest("Dados inválidos");
-                }
-
-                _context.Produtos.Add(produto);
-                _context.SaveChanges();
-
-                return new CreatedAtRouteResult("ObterProduto", new { id = produto.ProdutoId }, produto);
+                return BadRequest("Dados inválidos");
             }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema ao tratar a sua solicitação.");
-            }
+
+            _context.Produtos.Add(produto);
+            _context.SaveChanges();
+
+            return new CreatedAtRouteResult("ObterProduto", new { id = produto.ProdutoId }, produto);
         }
 
         [HttpPut("{id:int}")]
         public ActionResult Put(int id, Produto produto)
         {
-            try
+            if (id != produto.ProdutoId)
             {
-                if (id != produto.ProdutoId)
-                {
-                    return BadRequest("Dados inválidos");
-                }
-
-                _context.Entry(produto).State = EntityState.Modified;
-                _context.SaveChanges();
-
-                return Ok(produto);
+                return BadRequest("Dados inválidos");
             }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema ao tratar a sua solicitação.");
-            }
+
+            _context.Entry(produto).State = EntityState.Modified;
+            _context.SaveChanges();
+
+            return Ok(produto);
         }
 
         [HttpDelete("{id:int}")]
         public ActionResult Delete(int id)
         {
-            try
+            var produto = _context.Produtos.FirstOrDefault(x => x.ProdutoId == id);
+
+            if (produto is null)
             {
-                var produto = _context.Produtos.FirstOrDefault(x => x.ProdutoId == id);
-
-                if (produto is null)
-                {
-                    return NotFound("Produto nao encontrado");
-                }
-
-                _context.Produtos.Remove(produto);
-                _context.SaveChanges();
-
-                return Ok(produto);
+                return NotFound("Produto nao encontrado");
             }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema ao tratar a sua solicitação.");
-            }
+
+            _context.Produtos.Remove(produto);
+            _context.SaveChanges();
+
+            return Ok(produto);
         }
     }
 }
