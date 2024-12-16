@@ -23,7 +23,7 @@ namespace CatalogoApi.Controllers
         }
 
         [HttpGet("{id:int:min(1)}", Name = "ObterProduto")]
-        public async Task<ActionResult<Produto>> GetAsync(int id)
+        public async Task<IActionResult> GetAsync(int id)
         {
             var produto = await _context.Produtos.AsNoTracking().FirstOrDefaultAsync(x => x.ProdutoId == id);
 
@@ -36,7 +36,7 @@ namespace CatalogoApi.Controllers
         }
 
         [HttpPost]
-        public ActionResult Post(Produto produto)
+        public IActionResult Post(Produto produto)
         {
             if (produto is null)
             {
@@ -50,7 +50,7 @@ namespace CatalogoApi.Controllers
         }
 
         [HttpPut("{id:int}")]
-        public ActionResult Put(int id, Produto produto)
+        public IActionResult Put(int id, Produto produto)
         {
             if (id != produto.ProdutoId)
             {
@@ -64,7 +64,7 @@ namespace CatalogoApi.Controllers
         }
 
         [HttpDelete("{id:int}")]
-        public ActionResult Delete(int id)
+        public IActionResult Delete(int id)
         {
             var produto = _context.Produtos.FirstOrDefault(x => x.ProdutoId == id);
 

@@ -35,7 +35,7 @@ namespace CatalogoApi.Controllers
         }
 
         [HttpGet("{id:int}", Name = "ObterCategoria")]
-        public ActionResult<Categoria> Get(int id)
+        public IActionResult Get(int id)
         {
             var categoria = _context.Categorias.FirstOrDefault(x => x.CategoriaId == id);
             _logger.LogInformation($"================== GET api/categorias/id {id} ======================");
@@ -50,7 +50,7 @@ namespace CatalogoApi.Controllers
         }
 
         [HttpPost]
-        public ActionResult Post(Categoria categoria)
+        public IActionResult Post(Categoria categoria)
         {
             if (categoria is null)
             {
@@ -64,7 +64,7 @@ namespace CatalogoApi.Controllers
         }
 
         [HttpPut("{id:int}")]
-        public ActionResult Put(int id, Categoria categoria)
+        public IActionResult Put(int id, Categoria categoria)
         {
             if (id != categoria.CategoriaId)
             {
@@ -78,7 +78,7 @@ namespace CatalogoApi.Controllers
         }
 
         [HttpDelete("{id:int}")]
-        public ActionResult Delete(int id)
+        public IActionResult Delete(int id)
         {
             var categoria = _context.Categorias.FirstOrDefault(x => x.CategoriaId == id);
 
