@@ -1,8 +1,7 @@
-﻿using CatalogoApi.Context;
-using CatalogoApi.Filters;
+﻿using CatalogoApi.Filters;
 using CatalogoApi.Models;
+using CatalogoApi.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace CatalogoApi.Controllers
 {
@@ -10,12 +9,12 @@ namespace CatalogoApi.Controllers
     [ApiController]
     public class CategoriasController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private ICategoriaRepository _repository;
         private readonly ILogger<CategoriasController> _logger;
 
-        public CategoriasController(AppDbContext context, ILogger<CategoriasController> logger)
+        public CategoriasController(ICategoriaRepository repository, ILogger<CategoriasController> logger)
         {
-            _context = context;
+            _repository = repository;
             _logger = logger;
         }
 
@@ -23,7 +22,10 @@ namespace CatalogoApi.Controllers
         public ActionResult<IEnumerable<Categoria>> GetCategoriasProdutos()
         {
             _logger.LogInformation("==================== GET api/categorias/produtos ====================");
-            return _context.Categorias.Include(x => x.Produtos).AsNoTracking().ToList();
+
+            var categorias = _repository.GetCategoriasProdutos();
+
+            return Ok(categorias);
         }
 
         [HttpGet]
@@ -31,19 +33,22 @@ namespace CatalogoApi.Controllers
         public ActionResult<IEnumerable<Categoria>> Get()
         {
             _logger.LogInformation("=================== GET api/categorias ==============================");
-            return _context.Categorias.AsNoTracking().ToList();
+
+            var categorias = _repository.GetCategorias();
+
+            return Ok(categorias);
         }
 
         [HttpGet("{id:int}", Name = "ObterCategoria")]
         public IActionResult Get(int id)
         {
-            var categoria = _context.Categorias.FirstOrDefault(x => x.CategoriaId == id);
             _logger.LogInformation($"================== GET api/categorias/id {id} ======================");
 
+            var categoria = _repository.GetCategoria(id);
             if (categoria is null)
             {
-                _logger.LogInformation($"============== GET api/categorias/id {id} NOT FOUND ============");
-                return NotFound("Categoria nao encontrada");
+                _logger.LogWarning($"============= Categoria com id= {id} nao encontrada =================");
+                return NotFound($"Categoria com id= {id} nao encontrada");
             }
 
             return Ok(categoria);
@@ -54,13 +59,13 @@ namespace CatalogoApi.Controllers
         {
             if (categoria is null)
             {
+                _logger.LogWarning("==================== Dados inválidos ==============================");
                 return BadRequest("Dados inválidos");
             }
 
-            _context.Categorias.Add(categoria);
-            _context.SaveChanges();
+            var categoriaCriada = _repository.Create(categoria);
 
-            return new CreatedAtRouteResult("ObterCategoria", new { id = categoria.CategoriaId }, categoria);
+            return new CreatedAtRouteResult("ObterCategoria", new { id = categoriaCriada.CategoriaId }, categoriaCriada);
         }
 
         [HttpPut("{id:int}")]
@@ -68,11 +73,11 @@ namespace CatalogoApi.Controllers
         {
             if (id != categoria.CategoriaId)
             {
+                _logger.LogWarning("==================== Dados inválidos ==============================");
                 return BadRequest("Dados inválidos");
             }
 
-            _context.Entry(categoria).State = EntityState.Modified;
-            _context.SaveChanges();
+            _repository.Update(categoria);
 
             return Ok(categoria);
         }
@@ -80,17 +85,16 @@ namespace CatalogoApi.Controllers
         [HttpDelete("{id:int}")]
         public IActionResult Delete(int id)
         {
-            var categoria = _context.Categorias.FirstOrDefault(x => x.CategoriaId == id);
-
+            var categoria = _repository.GetCategoria(id);
             if (categoria is null)
             {
-                return NotFound("Categoria nao encontrada");
+                _logger.LogWarning($"============= Categoria com id= {id} nao encontrada =============");
+                return NotFound($"Categoria com id= {id} nao encontrada");
             }
 
-            _context.Categorias.Remove(categoria);
-            _context.SaveChanges();
+            var categoriaExcluida = _repository.Delete(id);
 
-            return Ok(categoria);
+            return Ok(categoriaExcluida);
         }
     }
 }

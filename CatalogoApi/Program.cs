@@ -2,6 +2,7 @@ using CatalogoApi.Context;
 using CatalogoApi.Extensions;
 using CatalogoApi.Filters;
 using CatalogoApi.Logging;
+using CatalogoApi.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -29,6 +30,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Filtro personalizado: Executa antes e depois de um método Action
 builder.Services.AddScoped<ApiLoggingFilter>();
+
+// Adiciona repositorio no container de injecao de dependencia
+builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 
 // Configura um log customizado
 builder.Logging.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfiguration()
