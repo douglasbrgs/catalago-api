@@ -18,23 +18,13 @@ namespace CatalogoApi.Controllers
             _logger = logger;
         }
 
-        [HttpGet("produtos")]
-        public ActionResult<IEnumerable<Categoria>> GetCategoriasProdutos()
-        {
-            _logger.LogInformation("==================== GET api/categorias/produtos ====================");
-
-            var categorias = _repository.GetCategoriasProdutos();
-
-            return Ok(categorias);
-        }
-
         [HttpGet]
         [ServiceFilter(typeof(ApiLoggingFilter))]
         public ActionResult<IEnumerable<Categoria>> Get()
         {
             _logger.LogInformation("=================== GET api/categorias ==============================");
 
-            var categorias = _repository.GetCategorias();
+            var categorias = _repository.GetAll();
 
             return Ok(categorias);
         }
@@ -44,7 +34,7 @@ namespace CatalogoApi.Controllers
         {
             _logger.LogInformation($"================== GET api/categorias/id {id} ======================");
 
-            var categoria = _repository.GetCategoria(id);
+            var categoria = _repository.Get(c => c.CategoriaId == id);
             if (categoria is null)
             {
                 _logger.LogWarning($"============= Categoria com id= {id} nao encontrada =================");
@@ -85,14 +75,14 @@ namespace CatalogoApi.Controllers
         [HttpDelete("{id:int}")]
         public IActionResult Delete(int id)
         {
-            var categoria = _repository.GetCategoria(id);
+            var categoria = _repository.Get(c => c.CategoriaId == id);
             if (categoria is null)
             {
                 _logger.LogWarning($"============= Categoria com id= {id} nao encontrada =============");
                 return NotFound($"Categoria com id= {id} nao encontrada");
             }
 
-            var categoriaExcluida = _repository.Delete(id);
+            var categoriaExcluida = _repository.Delete(categoria);
 
             return Ok(categoriaExcluida);
         }

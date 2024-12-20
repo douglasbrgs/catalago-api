@@ -17,22 +17,32 @@ namespace CatalogoApi.Controllers
             _logger = logger;
         }
 
+        [HttpGet("categoria/{id:int}")]
+        public ActionResult<IEnumerable<Categoria>> GetProdutosCategoria(int id)
+        {
+            _logger.LogInformation("==================== GET api/categorias/produtos ====================");
+
+            var produtos = _repository.GetProdutosPorCategoria(id);
+
+            return Ok(produtos);
+        }
+
         [HttpGet]
         public IActionResult Get()
         {
             _logger.LogInformation("=================== GET api/produtos ==============================");
 
-            var produtos = _repository.GetProdutos();
+            var produtos = _repository.GetAll();
 
             return Ok(produtos);
         }
 
         [HttpGet("{id:int:min(1)}", Name = "ObterProduto")]
-        public IActionResult GetAsync(int id)
+        public IActionResult Get(int id)
         {
             _logger.LogInformation($"================== GET api/produtos/id {id} ======================");
 
-            var produto = _repository.GetProduto(id);
+            var produto = _repository.Get(p => p.ProdutoId == id);
 
             if (produto is null)
             {
@@ -74,7 +84,7 @@ namespace CatalogoApi.Controllers
         [HttpDelete("{id:int}")]
         public IActionResult Delete(int id)
         {
-            var produto = _repository.GetProduto(id);
+            var produto = _repository.Get(p => p.ProdutoId == id);
 
             if (produto is null)
             {
@@ -82,7 +92,7 @@ namespace CatalogoApi.Controllers
                 return NotFound($"Produto com id= {id} nao encontrado");
             }
 
-            var produtoExcluido = _repository.Delete(id);
+            var produtoExcluido = _repository.Delete(produto);
 
             return Ok(produtoExcluido);
         }

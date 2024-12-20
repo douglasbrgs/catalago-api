@@ -2,12 +2,6 @@
 
 namespace CatalogoApi.Repositories;
 
-public interface ICategoriaRepository
+public interface ICategoriaRepository : IGenericRepository<Categoria>
 {
-    IEnumerable<Categoria> GetCategorias();
-    IEnumerable<Categoria> GetCategoriasProdutos();
-    Categoria GetCategoria(int id);
-    Categoria Create(Categoria categoria);
-    Categoria Update(Categoria categoria);
-    Categoria Delete(int id);
 }
