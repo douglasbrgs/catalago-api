@@ -33,6 +33,7 @@ builder.Services.AddScoped<ApiLoggingFilter>();
 
 // Adiciona repositorio no container de injecao de dependencia
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
+builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
 
 // Configura um log customizado
 builder.Logging.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfiguration()

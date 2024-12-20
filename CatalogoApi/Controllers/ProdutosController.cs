@@ -1,7 +1,6 @@
-﻿using CatalogoApi.Context;
-using CatalogoApi.Models;
+﻿using CatalogoApi.Models;
+using CatalogoApi.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace CatalogoApi.Controllers
 {
@@ -9,27 +8,36 @@ namespace CatalogoApi.Controllers
     [ApiController]
     public class ProdutosController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IProdutoRepository _repository;
+        private readonly ILogger<ProdutosController> _logger;
 
-        public ProdutosController(AppDbContext context)
+        public ProdutosController(IProdutoRepository repository, ILogger<ProdutosController> logger)
         {
-            _context = context;
+            _repository = repository;
+            _logger = logger;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Produto>>> GetAsync()
+        public IActionResult Get()
         {
-            return await _context.Produtos.AsNoTracking().ToListAsync();
+            _logger.LogInformation("=================== GET api/produtos ==============================");
+
+            var produtos = _repository.GetProdutos();
+
+            return Ok(produtos);
         }
 
         [HttpGet("{id:int:min(1)}", Name = "ObterProduto")]
-        public async Task<IActionResult> GetAsync(int id)
+        public IActionResult GetAsync(int id)
         {
-            var produto = await _context.Produtos.AsNoTracking().FirstOrDefaultAsync(x => x.ProdutoId == id);
+            _logger.LogInformation($"================== GET api/produtos/id {id} ======================");
+
+            var produto = _repository.GetProduto(id);
 
             if (produto is null)
             {
-                return NotFound("Produto nao encontrado");
+                _logger.LogWarning($"============= Produto com id= {id} nao encontrado =================");
+                return NotFound($"Produto com id= {id} nao encontrado");
             }
 
             return Ok(produto);
@@ -40,13 +48,13 @@ namespace CatalogoApi.Controllers
         {
             if (produto is null)
             {
+                _logger.LogWarning("==================== Dados inválidos ==============================");
                 return BadRequest("Dados inválidos");
             }
 
-            _context.Produtos.Add(produto);
-            _context.SaveChanges();
+            var produtoCriado = _repository.Create(produto);
 
-            return new CreatedAtRouteResult("ObterProduto", new { id = produto.ProdutoId }, produto);
+            return new CreatedAtRouteResult("ObterProduto", new { id = produtoCriado.ProdutoId }, produtoCriado);
         }
 
         [HttpPut("{id:int}")]
@@ -54,11 +62,11 @@ namespace CatalogoApi.Controllers
         {
             if (id != produto.ProdutoId)
             {
+                _logger.LogWarning("==================== Dados inválidos ==============================");
                 return BadRequest("Dados inválidos");
             }
 
-            _context.Entry(produto).State = EntityState.Modified;
-            _context.SaveChanges();
+            _repository.Update(produto);
 
             return Ok(produto);
         }
@@ -66,17 +74,17 @@ namespace CatalogoApi.Controllers
         [HttpDelete("{id:int}")]
         public IActionResult Delete(int id)
         {
-            var produto = _context.Produtos.FirstOrDefault(x => x.ProdutoId == id);
+            var produto = _repository.GetProduto(id);
 
             if (produto is null)
             {
-                return NotFound("Produto nao encontrado");
+                _logger.LogWarning($"============= Produto com id= {id} nao encontrado =============");
+                return NotFound($"Produto com id= {id} nao encontrado");
             }
 
-            _context.Produtos.Remove(produto);
-            _context.SaveChanges();
+            var produtoExcluido = _repository.Delete(id);
 
-            return Ok(produto);
+            return Ok(produtoExcluido);
         }
     }
 }
