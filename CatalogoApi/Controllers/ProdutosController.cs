@@ -8,12 +8,12 @@ namespace CatalogoApi.Controllers
     [ApiController]
     public class ProdutosController : ControllerBase
     {
-        private readonly IProdutoRepository _repository;
+        private readonly IUnitOfWork _uof;
         private readonly ILogger<ProdutosController> _logger;
 
-        public ProdutosController(IProdutoRepository repository, ILogger<ProdutosController> logger)
+        public ProdutosController(IUnitOfWork uof, ILogger<ProdutosController> logger)
         {
-            _repository = repository;
+            _uof = uof;
             _logger = logger;
         }
 
@@ -22,7 +22,7 @@ namespace CatalogoApi.Controllers
         {
             _logger.LogInformation("==================== GET api/categorias/produtos ====================");
 
-            var produtos = _repository.GetProdutosPorCategoria(id);
+            var produtos = _uof.ProdutoRepository.GetProdutosPorCategoria(id);
 
             return Ok(produtos);
         }
@@ -32,7 +32,7 @@ namespace CatalogoApi.Controllers
         {
             _logger.LogInformation("=================== GET api/produtos ==============================");
 
-            var produtos = _repository.GetAll();
+            var produtos = _uof.ProdutoRepository.GetAll();
 
             return Ok(produtos);
         }
@@ -42,7 +42,7 @@ namespace CatalogoApi.Controllers
         {
             _logger.LogInformation($"================== GET api/produtos/id {id} ======================");
 
-            var produto = _repository.Get(p => p.ProdutoId == id);
+            var produto = _uof.ProdutoRepository.Get(p => p.ProdutoId == id);
 
             if (produto is null)
             {
@@ -62,7 +62,8 @@ namespace CatalogoApi.Controllers
                 return BadRequest("Dados inválidos");
             }
 
-            var produtoCriado = _repository.Create(produto);
+            var produtoCriado = _uof.ProdutoRepository.Create(produto);
+            _uof.Commit();
 
             return new CreatedAtRouteResult("ObterProduto", new { id = produtoCriado.ProdutoId }, produtoCriado);
         }
@@ -76,7 +77,8 @@ namespace CatalogoApi.Controllers
                 return BadRequest("Dados inválidos");
             }
 
-            _repository.Update(produto);
+            _uof.ProdutoRepository.Update(produto);
+            _uof.Commit();
 
             return Ok(produto);
         }
@@ -84,7 +86,7 @@ namespace CatalogoApi.Controllers
         [HttpDelete("{id:int}")]
         public IActionResult Delete(int id)
         {
-            var produto = _repository.Get(p => p.ProdutoId == id);
+            var produto = _uof.ProdutoRepository.Get(p => p.ProdutoId == id);
 
             if (produto is null)
             {
@@ -92,7 +94,8 @@ namespace CatalogoApi.Controllers
                 return NotFound($"Produto com id= {id} nao encontrado");
             }
 
-            var produtoExcluido = _repository.Delete(produto);
+            var produtoExcluido = _uof.ProdutoRepository.Delete(produto);
+            _uof.Commit();
 
             return Ok(produtoExcluido);
         }

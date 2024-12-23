@@ -25,7 +25,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
     public T Create(T entity)
     {
         _context.Set<T>().Add(entity);
-        _context.SaveChanges();
+        //_context.SaveChanges();
 
         return entity;
     }
@@ -33,7 +33,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
     public T Update(T entity)
     {
         _context.Set<T>().Update(entity);
-        _context.SaveChanges();
+        //_context.SaveChanges();
 
         return entity;
     }
@@ -41,7 +41,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
     public T Delete(T entity)
     {
         _context.Set<T>().Remove(entity);
-        _context.SaveChanges();
+        //_context.SaveChanges();
 
         return entity;
     }
