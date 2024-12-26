@@ -1,4 +1,5 @@
 using CatalogoApi.Context;
+using CatalogoApi.DTOs.Mappings;
 using CatalogoApi.Extensions;
 using CatalogoApi.Filters;
 using CatalogoApi.Logging;
@@ -41,6 +42,9 @@ builder.Logging.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderCon
 {
     LogLevel = LogLevel.Information
 }));
+
+// Configurando o serviço de mapeamento de entidades
+builder.Services.AddAutoMapper(typeof(ProdutoDTOMappingProfile));
 
 var app = builder.Build();
 
