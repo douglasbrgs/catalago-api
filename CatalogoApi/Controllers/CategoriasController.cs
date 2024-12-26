@@ -1,5 +1,6 @@
-﻿using CatalogoApi.Filters;
-using CatalogoApi.Models;
+﻿using CatalogoApi.DTOs;
+using CatalogoApi.DTOs.Mappings;
+using CatalogoApi.Filters;
 using CatalogoApi.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,64 +21,74 @@ namespace CatalogoApi.Controllers
 
         [HttpGet]
         [ServiceFilter(typeof(ApiLoggingFilter))]
-        public ActionResult<IEnumerable<Categoria>> Get()
+        public ActionResult<IEnumerable<CategoriaDTO>> Get()
         {
             _logger.LogInformation("=================== GET api/categorias ==============================");
 
             var categorias = _uof.CategoriaRepository.GetAll();
+            var categoriaDTOs = categorias.ToCategoriaDTOList();
 
-            return Ok(categorias);
+            return Ok(categoriaDTOs);
         }
 
         [HttpGet("{id:int}", Name = "ObterCategoria")]
-        public IActionResult Get(int id)
+        public ActionResult<CategoriaDTO> Get(int id)
         {
             _logger.LogInformation($"================== GET api/categorias/id {id} ======================");
 
             var categoria = _uof.CategoriaRepository.Get(c => c.CategoriaId == id);
+
             if (categoria is null)
             {
                 _logger.LogWarning($"============= Categoria com id= {id} nao encontrada =================");
                 return NotFound($"Categoria com id= {id} nao encontrada");
             }
 
-            return Ok(categoria);
+            var categoriaDTO = categoria.ToCategoriaDTO();
+
+            return Ok(categoriaDTO);
         }
 
         [HttpPost]
-        public IActionResult Post(Categoria categoria)
+        public ActionResult<CategoriaDTO> Post(CategoriaDTO categoriaDTO)
         {
-            if (categoria is null)
+            if (categoriaDTO is null)
             {
                 _logger.LogWarning("==================== Dados inválidos ==============================");
                 return BadRequest("Dados inválidos");
             }
 
+            var categoria = categoriaDTO.ToCategoria();
             var categoriaCriada = _uof.CategoriaRepository.Create(categoria);
             _uof.Commit();
 
-            return new CreatedAtRouteResult("ObterCategoria", new { id = categoriaCriada.CategoriaId }, categoriaCriada);
+            var categoriaCriadaDTO = categoriaCriada.ToCategoriaDTO();
+
+            return new CreatedAtRouteResult("ObterCategoria", new { id = categoriaCriadaDTO.CategoriaId }, categoriaCriadaDTO);
         }
 
         [HttpPut("{id:int}")]
-        public IActionResult Put(int id, Categoria categoria)
+        public ActionResult<CategoriaDTO> Put(int id, CategoriaDTO categoriaDTO)
         {
-            if (id != categoria.CategoriaId)
+            if (id != categoriaDTO.CategoriaId)
             {
                 _logger.LogWarning("==================== Dados inválidos ==============================");
                 return BadRequest("Dados inválidos");
             }
+
+            var categoria = categoriaDTO.ToCategoria();
 
             _uof.CategoriaRepository.Update(categoria);
             _uof.Commit();
 
-            return Ok(categoria);
+            return Ok(categoriaDTO);
         }
 
         [HttpDelete("{id:int}")]
-        public IActionResult Delete(int id)
+        public ActionResult<CategoriaDTO> Delete(int id)
         {
             var categoria = _uof.CategoriaRepository.Get(c => c.CategoriaId == id);
+
             if (categoria is null)
             {
                 _logger.LogWarning($"============= Categoria com id= {id} nao encontrada =============");
@@ -87,7 +98,9 @@ namespace CatalogoApi.Controllers
             var categoriaExcluida = _uof.CategoriaRepository.Delete(categoria);
             _uof.Commit();
 
-            return Ok(categoriaExcluida);
+            var categoriaExcluidaDTO = categoriaExcluida.ToCategoriaDTO();
+
+            return Ok(categoriaExcluidaDTO);
         }
     }
 }
