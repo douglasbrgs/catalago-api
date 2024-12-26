@@ -59,6 +59,7 @@ namespace CatalogoApi.Controllers
             }
 
             var categoria = categoriaDTO.ToCategoria();
+
             var categoriaCriada = _uof.CategoriaRepository.Create(categoria);
             _uof.Commit();
 
@@ -78,10 +79,12 @@ namespace CatalogoApi.Controllers
 
             var categoria = categoriaDTO.ToCategoria();
 
-            _uof.CategoriaRepository.Update(categoria);
+            var categoriaAtualizada = _uof.CategoriaRepository.Update(categoria);
             _uof.Commit();
 
-            return Ok(categoriaDTO);
+            var categoriaAtualizadaDTO = categoriaAtualizada.ToCategoriaDTO();
+
+            return Ok(categoriaAtualizadaDTO);
         }
 
         [HttpDelete("{id:int}")]
