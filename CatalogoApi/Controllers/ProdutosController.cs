@@ -2,6 +2,7 @@
 using CatalogoApi.DTOs;
 using CatalogoApi.Models;
 using CatalogoApi.Repositories;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CatalogoApi.Controllers
@@ -80,6 +81,47 @@ namespace CatalogoApi.Controllers
             var produtoCriadoDTO = _mapper.Map<ProdutoDTO>(produtoCriado);
 
             return new CreatedAtRouteResult("ObterProduto", new { id = produtoCriadoDTO.ProdutoId }, produtoCriadoDTO);
+        }
+
+        [HttpPatch("{id:int}/UpdatePartial")]
+        public ActionResult<ProdutoDTOUpdateResponse> Patch(int id,
+            JsonPatchDocument<ProdutoDTOUpdateRequest> patchDocument)
+        {
+            if (patchDocument is null || id <= 0)
+            {
+                return BadRequest();
+            }
+
+            var produto = _uof.ProdutoRepository.Get(p => p.ProdutoId == id);
+
+            if (produto is null)
+            {
+                return NotFound();
+            }
+
+            // Mapeia Produto para DTO Request
+            var produtoUpdateRequest = _mapper.Map<ProdutoDTOUpdateRequest>(produto);
+
+            // Aplica alteracoes definidas no JSON Patch
+            patchDocument.ApplyTo(produtoUpdateRequest, ModelState);
+
+            // Valida os dados de entrada
+            if (!ModelState.IsValid || !TryValidateModel(produtoUpdateRequest))
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Mapeia DTO Request para Produto
+            _mapper.Map(produtoUpdateRequest, produto);
+
+            // Atualiza Produto no repositorio
+            _uof.ProdutoRepository.Update(produto);
+            _uof.Commit();
+
+            // Mapeia para DTO Response
+            var produtoAlteradoDTO = _mapper.Map<ProdutoDTOUpdateResponse>(produto);
+
+            return Ok(produtoAlteradoDTO);
         }
 
         [HttpPut("{id:int}")]
