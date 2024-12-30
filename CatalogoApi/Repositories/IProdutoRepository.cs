@@ -5,7 +5,7 @@ namespace CatalogoApi.Repositories;
 
 public interface IProdutoRepository : IGenericRepository<Produto>
 {
-    IEnumerable<Produto> GetProdutos(ProdutosParameters produtosParameters);
+    PagedList<Produto> GetProdutos(ProdutosParameters produtosParameters);
 
     IEnumerable<Produto> GetProdutosPorCategoria(int id);
 }
