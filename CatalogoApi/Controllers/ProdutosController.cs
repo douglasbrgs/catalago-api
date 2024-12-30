@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using CatalogoApi.DTOs;
 using CatalogoApi.Models;
-using CatalogoApi.Pagination;
+using CatalogoApi.Pagination.Parameters;
 using CatalogoApi.Repositories;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;

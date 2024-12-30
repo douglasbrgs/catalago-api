@@ -1,7 +1,7 @@
 ﻿using CatalogoApi.DTOs;
 using CatalogoApi.DTOs.Mappings;
 using CatalogoApi.Filters;
-using CatalogoApi.Pagination;
+using CatalogoApi.Pagination.Parameters;
 using CatalogoApi.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;

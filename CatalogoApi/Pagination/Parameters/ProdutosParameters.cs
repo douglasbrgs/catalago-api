@@ -1,4 +1,4 @@
-﻿namespace CatalogoApi.Pagination;
+﻿namespace CatalogoApi.Pagination.Parameters;
 
 public class ProdutosParameters : QueryStringParameters
 {

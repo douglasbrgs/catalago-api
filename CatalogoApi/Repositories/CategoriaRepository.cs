@@ -1,6 +1,7 @@
 ﻿using CatalogoApi.Context;
 using CatalogoApi.Models;
 using CatalogoApi.Pagination;
+using CatalogoApi.Pagination.Parameters;
 
 namespace CatalogoApi.Repositories;
 
