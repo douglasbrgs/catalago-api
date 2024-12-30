@@ -1,8 +1,10 @@
 ﻿using CatalogoApi.DTOs;
 using CatalogoApi.DTOs.Mappings;
 using CatalogoApi.Filters;
+using CatalogoApi.Pagination;
 using CatalogoApi.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace CatalogoApi.Controllers
 {
@@ -26,6 +28,28 @@ namespace CatalogoApi.Controllers
             _logger.LogInformation("=================== GET api/categorias ==============================");
 
             var categorias = _uof.CategoriaRepository.GetAll();
+            var categoriaDTOs = categorias.ToCategoriaDTOList();
+
+            return Ok(categoriaDTOs);
+        }
+
+        [HttpGet("pagination")]
+        public ActionResult<IEnumerable<CategoriaDTO>> Get([FromQuery] CategoriasParameters categoriasParameters)
+        {
+            var categorias = _uof.CategoriaRepository.GetCategorias(categoriasParameters);
+
+            var metadata = new
+            {
+                categorias.TotalCount,
+                categorias.PageSize,
+                categorias.CurrentPage,
+                categorias.TotalPages,
+                categorias.HasNext,
+                categorias.HasPrevious
+            };
+
+            Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(metadata));
+
             var categoriaDTOs = categorias.ToCategoriaDTOList();
 
             return Ok(categoriaDTOs);
