@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using CatalogoApi.DTOs;
 using CatalogoApi.Models;
+using CatalogoApi.Pagination;
+using CatalogoApi.Pagination.Filters;
 using CatalogoApi.Pagination.Parameters;
 using CatalogoApi.Repositories;
 using Microsoft.AspNetCore.JsonPatch;
@@ -53,21 +55,15 @@ namespace CatalogoApi.Controllers
         {
             var produtos = _uof.ProdutoRepository.GetProdutos(produtosParameters);
 
-            var metadata = new
-            {
-                produtos.TotalCount,
-                produtos.PageSize,
-                produtos.CurrentPage,
-                produtos.TotalPages,
-                produtos.HasNext,
-                produtos.HasPrevious
-            };
+            return ObterProdutos(produtos);
+        }
 
-            Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(metadata));
+        [HttpGet("filter")]
+        public ActionResult<IEnumerable<ProdutoDTO>> Get([FromQuery] ProdutosFiltroPreco produtosFiltro)
+        {
+            var produtos = _uof.ProdutoRepository.GetProdutosFiltroPreco(produtosFiltro);
 
-            var produtoDTOs = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos);
-
-            return Ok(produtoDTOs);
+            return ObterProdutos(produtos);
         }
 
         [HttpGet("{id:int:min(1)}", Name = "ObterProduto")]
@@ -185,5 +181,25 @@ namespace CatalogoApi.Controllers
 
             return Ok(produtoExcluidoDTO);
         }
+
+        private ActionResult<IEnumerable<ProdutoDTO>> ObterProdutos(PagedList<Produto> produtos)
+        {
+            var metadata = new
+            {
+                produtos.TotalCount,
+                produtos.PageSize,
+                produtos.CurrentPage,
+                produtos.TotalPages,
+                produtos.HasNext,
+                produtos.HasPrevious
+            };
+
+            Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(metadata));
+
+            var produtoDTOs = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos);
+
+            return Ok(produtoDTOs);
+        }
+
     }
 }
